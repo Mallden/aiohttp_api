@@ -131,3 +131,5 @@ dmypy.json
 
 /.idea
 /apps/settings.py
+
+/aiohttp_api
