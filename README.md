@@ -4,7 +4,7 @@ Sample file settings.py:
 
 DATABASES = {
     'NAME': database name,
-    'HOST': ip database,
+    'HOST': ip databas,
     'PORT': 9000
 }
 
