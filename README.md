@@ -20,4 +20,9 @@ DATABASES = {
 from aiochorm.models import Model
 from aiochorm.fields import *
 from aiochorm.engines import MergeTree
+
+class Clicks(Model):
+    id = NullableField(inner_field=Int32Field())
+    date = DateTimeField()
+    engine = MergeTree()
 ```
