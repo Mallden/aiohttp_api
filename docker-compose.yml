@@ -1,0 +1,16 @@
+version: '3'
+
+volumes:
+    api_aiohttp: {}
+services:
+    api:
+        container_name: test_api
+        build:
+            context: .
+            dockerfile: ./Dockerfile
+        tty: true
+        restart: always
+        volumes:
+            - "./:/app"
+        ports:
+            - "8080:8080"
