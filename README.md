@@ -1,4 +1,4 @@
-# aiohttp + ClickHouse 
+# aiohttp + ClickHouse (aiochorm) 
 
 To start and connect to the database, you need to create a files: 
 1) apps/settings.py
