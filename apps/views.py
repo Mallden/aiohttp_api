@@ -26,6 +26,10 @@ class InfoClickView(web.View):
         queryset = QUERYSET.filter(**filter_queryset)
 
         events = await queryset.execute()
+
+        if not events:
+            return web.json_response(status=204)
+
         return web.json_response(text=json.dumps(events, cls=utils.JSONEncoder))
 
 
