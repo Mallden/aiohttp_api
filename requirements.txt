@@ -1,2 +1,3 @@
 aiohttp
 aiochorm
+pytest-aiohttp

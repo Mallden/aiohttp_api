@@ -17,4 +17,4 @@ VOLUME ["/app"]
 
 EXPOSE 8080
 
-CMD ["python", "main.py"]
+CMD ["python", "api/main.py"]

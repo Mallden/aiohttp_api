@@ -1,5 +1,5 @@
 from aiochorm.database import AsyncDatabase
-from apps.settings import DATABASES
+from settings import DATABASES
 
 DB_CONNECT = AsyncDatabase(
     db_name=DATABASES['NAME'],

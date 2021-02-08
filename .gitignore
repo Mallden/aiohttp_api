@@ -130,7 +130,6 @@ dmypy.json
 
 
 /.idea
-/apps/settings.py
+/api/settings.py
 
-/aiohttp_api
-/apps/models/models.py
+/api/models/models.py

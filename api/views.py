@@ -3,9 +3,9 @@ import json
 
 from aiohttp import web
 from aiochorm import utils
-from apps.models.models import ClickHouseCompanyLog
-from apps.database import DB_CONNECT
-from apps.settings import DICT_KEY, TO_DATE
+from models.models import ClickHouseCompanyLog
+from database import DB_CONNECT
+from settings import DICT_KEY, TO_DATE
 
 QUERYSET = ClickHouseCompanyLog.objects_in_async(DB_CONNECT)
 
