@@ -3,7 +3,7 @@ import json
 
 from aiohttp import web
 from aiochorm import utils
-from models.models import ClickHouseCompanyLog
+from models import ClickHouseCompanyLog
 from database import DB_CONNECT
 from settings import DICT_KEY, TO_DATE
 
