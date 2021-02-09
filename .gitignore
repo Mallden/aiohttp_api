@@ -132,4 +132,4 @@ dmypy.json
 /.idea
 /api/settings.py
 
-/api/models/models.py
+/api/models.py
