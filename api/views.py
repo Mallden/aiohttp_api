@@ -3,7 +3,7 @@ import json
 
 from aiohttp import web
 from aiochorm import utils
-from models.models import ClickHouseCompanyLog
+from models import ClickHouseCompanyLog
 from database import DB_CONNECT
 from settings import DICT_KEY, TO_DATE
 
@@ -18,6 +18,7 @@ class InfoClickView(web.View):
 
         data = dict(self.request.query)
         fields = data.pop('fields').split(',') if data.get('fields') else None
+        count_plan = data.pop('count') if data.get('count') else None
 
         filter_queryset = {
             DICT_KEY[key]
@@ -29,13 +30,22 @@ class InfoClickView(web.View):
         filter_queryset['company_id'] = int(self.request.match_info.get('company'))
 
         queryset = QUERYSET.filter(**filter_queryset).only(*fields) if fields else QUERYSET.filter(**filter_queryset)
-        events = await queryset.execute()
 
+        if count_plan:
+            queryset = queryset.aggregate('company_id', count='count()')
+            events = await self.get_events(queryset, count_plan)
+            events = await events.execute()
+        else:
+            events = await queryset.execute()
+        print(events[0].__dict__)
         if not events:
             return web.json_response(status=204)
 
         return web.json_response(text=json.dumps(events, cls=utils.JSONEncoder))
 
+    @staticmethod
+    def get_events(queryset, count):
+        return queryset
 
 async def clicks_count(request):
     if not request.query:

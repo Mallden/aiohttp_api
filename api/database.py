@@ -1,4 +1,4 @@
-from aiochorm.database import AsyncDatabase
+from async_orm.database import AsyncDatabase
 from settings import DATABASES
 
 DB_CONNECT = AsyncDatabase(
