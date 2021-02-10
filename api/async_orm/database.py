@@ -4,6 +4,8 @@ from aioch import Client
 from infi.clickhouse_orm.models import ModelBase
 from infi.clickhouse_orm.database import Database, Page, DatabaseException, ServerError
 
+from async_orm.models import FakeModel
+
 
 class AsyncDatabase(Database):
     def __init__(self, db_name='default', db_host='127.0.0.1', db_port='9000',
@@ -53,10 +55,23 @@ class AsyncDatabase(Database):
         '''
         query = self._substitute(query, model_class)
         lines, columns = await self._send(query, settings, with_column_types=True)
+        print(lines, query)
         field_names = [c[0] for c in columns]
         field_types = [c[1] for c in columns]
-        model_class = model_class or ModelBase.create_ad_hoc_model(zip(field_names, field_types))
-        return [from_list(model_class, line, field_names, self.server_timezone, self) for line in lines if line]
+        model_class = model_class or FakeModel()
+        if model_class.__class__.__name__ == 'FakeModel':
+            model_class.create_fake_field(zip(field_names, field_types))
+
+        return [
+            model_class.from_list_new(
+                line,
+                field_names,
+                self.server_timezone,
+                self,
+                fake_model=model_class if model_class.__class__.__name__ == 'FakeModel' else None
+            ) for line in lines if line
+        ]
+        # return [from_list(model_class, line, field_names, self.server_timezone, self) for line in lines if line]
 
     async def _send(self, data, settings=None, stream=False, with_column_types=False):
         return await self.client.execute(data, settings, with_column_types=with_column_types)
@@ -105,18 +120,3 @@ class AsyncDatabase(Database):
         for butch in gen():
             query = self._substitute('INSERT INTO $table (%s) VALUES ' % fields_list, model_class)
             await self._send(query, settings=butch)
-
-
-def from_list(cls, line, field_names, timezone_in_use=pytz.utc, database=None):
-    from six import next
-    values = iter(line)
-    kwargs = {}
-    for name in field_names:
-        field = getattr(cls, name)
-        kwargs[name] = field.to_python(next(values), timezone_in_use)
-
-    obj = cls(**kwargs)
-    if database is not None:
-        obj.set_database(database)
-
-    return obj

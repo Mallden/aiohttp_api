@@ -23,19 +23,13 @@ class AsyncQuerySet(QuerySet):
         return AsyncAggregateQuerySet(self, args, kwargs)
 
 
-class AsyncAggregateQuerySet(AsyncQuerySet):
+class AsyncAggregateQuerySet(AggregateQuerySet):
 
-    def __init__(self, base_qs, grouping_fields, calculated_fields):
-        super(AsyncAggregateQuerySet, self).__init__(base_qs._model_cls, base_qs._database)
-        assert calculated_fields, 'No calculated fields specified for aggregation'
-        self._fields = grouping_fields
-        self._grouping_fields = grouping_fields
-        self._calculated_fields = calculated_fields
-        self._order_by = list(base_qs._order_by)
-        self._where_q = base_qs._where_q
-        self._prewhere_q = base_qs._prewhere_q
-        self._limits = base_qs._limits
-        self._distinct = base_qs._distinct
+    def aggregate(self, *args, **kwargs):
+        pass
+
+    def only(self, *field_names):
+        pass
 
     async def group_by(self, *args):
         """
@@ -46,7 +40,7 @@ class AsyncAggregateQuerySet(AsyncQuerySet):
         for name in args:
             assert name in self._fields or name in self._calculated_fields, \
                    'Cannot group by `%s` since it is not included in the query' % name
-        qs = await copy(self)
+        qs = copy(self)
         qs._grouping_fields = args
         return qs
 
@@ -60,9 +54,3 @@ class AsyncAggregateQuerySet(AsyncQuerySet):
 
     async def execute(self):
         return await self._database.select(self.as_sql())
-
-    def select_fields_as_sql(self):
-        """
-        Returns the selected fields or expressions as a SQL string.
-        """
-        return comma_join(list(self._fields) + ['%s AS %s' % (v, k) for k, v in self._calculated_fields.items()])

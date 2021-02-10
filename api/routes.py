@@ -1,8 +1,9 @@
 from aiohttp import web
-from views import InfoClickView, clicks_count
+from views import InfoClickView, CountClickView
+
 
 def setup_routes(app):
     app.add_routes([
         web.view('/find_clicks/{company}/', InfoClickView),
-        web.get('/count/', clicks_count)
+        web.get('/count/', CountClickView)
     ])
