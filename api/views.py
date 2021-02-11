@@ -10,6 +10,7 @@ from settings import DICT_KEY, TO_DATE
 QUERYSET = ClickHouseCompanyLog.objects_in_async(DB_CONNECT)
 FIELDS_MODEL = list(ClickHouseCompanyLog.fields().keys())
 
+
 def get_filter_info(data, fields_search=False):
     print(data)
     fields = data.pop('fields').split(',') if data.get('fields') else None
@@ -17,7 +18,7 @@ def get_filter_info(data, fields_search=False):
         DICT_KEY[key]
         if key in DICT_KEY.keys()
         else key: datetime.datetime.strptime(data[key], '%Y.%m.%d')
-        if key in TO_DATE else data[key] if not '__in' in DICT_KEY.get(key) else data[key].split(',')
+        if key in TO_DATE else data[key] if '__in' not in DICT_KEY.get(key) else data[key].split(',')
         for key in data
     }
     if fields_search:
@@ -32,8 +33,7 @@ class InfoClickView(web.View):
             return web.json_response(status=400)
 
         data = dict(self.request.query)
-        fields, filter_queryset = get_filter_info(data, fields=True)
-        filter_queryset['company_id'] = int(self.request.match_info.get('company'))
+        fields, filter_queryset = get_filter_info(data, fields_search=True)
 
         queryset = QUERYSET.filter(**filter_queryset).only(*fields) if fields else QUERYSET.filter(**filter_queryset)
         events = await queryset.execute()
@@ -62,7 +62,7 @@ class CountClickView(web.View):
         list_events = list()
         for event in events:
             list_events.append(event.__dict__)
-        print(list_events)
+        print(list_events[0]['company_id'])
         return web.json_response(text=json.dumps(list_events, cls=utils.JSONEncoder))
 
     @staticmethod

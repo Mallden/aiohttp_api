@@ -1,4 +1,5 @@
 import pytz
+import copy
 from infi.clickhouse_orm.engines import MergeTree
 
 from six import iteritems, with_metaclass
@@ -16,21 +17,19 @@ class Model(_Model):
     def from_list_new(cls, line, field_names, timezone_in_use=pytz.utc, database=None, fake_model=None):
         field_info = zip(field_names, line)
         kwargs = {}
-
+        copy_model = copy.deepcopy(fake_model)
         for name, value in field_info:
-            field = getattr(cls, name) if not fake_model else getattr(fake_model, name)
+            field = getattr(cls, name) if not fake_model else getattr(copy_model, name)
             if fake_model:
-                fake_model.__setattr__(name, field.to_python(value, timezone_in_use))
+                copy_model.__setattr__(name, field.to_python(value, timezone_in_use))
             else:
                 kwargs[name] = field.to_python(value, timezone_in_use)
-
         if kwargs:
             obj = cls(**kwargs)
             if database:
                 obj.set_database(database)
             return obj
-
-        return fake_model
+        return copy_model
 
     @classmethod
     def from_list(cls, line, field_names, timezone_in_use=pytz.utc, database=None, fake_model=None):
